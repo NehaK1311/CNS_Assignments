@@ -1,0 +1,118 @@
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.Signature;
+import java.util.Scanner;
+
+public class Assignment10_DSS {
+
+    private static final String SIGNING_ALGORITHM = "SHA256withRSA";
+    private static final String RSA = "RSA";
+    private static Scanner sc;
+
+    public static byte[] Create_Digital_Signature(byte[] input, PrivateKey Key) throws Exception {
+        Signature signature = Signature.getInstance(SIGNING_ALGORITHM);
+        signature.initSign(Key);
+        signature.update(input);
+        return signature.sign();
+    }
+
+    public static KeyPair Generate_RSA_KeyPair() throws Exception {
+        SecureRandom secureRandom = new SecureRandom();
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(RSA);
+        keyPairGenerator.initialize(2048, secureRandom);
+        return keyPairGenerator.generateKeyPair();
+    }
+
+    public static boolean Verify_Digital_Signature(byte[] input, byte[] signatureToVerify, PublicKey key) throws Exception {
+        Signature signature = Signature.getInstance(SIGNING_ALGORITHM);
+        signature.initVerify(key);
+        signature.update(input);
+        return signature.verify(signatureToVerify);
+    }
+
+    public static String bytesToHex(byte[] bytes) {
+        StringBuilder hexString = new StringBuilder(2 * bytes.length);
+        for (int i = 0; i < bytes.length; i++) {
+            String hex = Integer.toHexString(0xff & bytes[i]);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString().toUpperCase();
+    }
+
+    public static void main(String args[]) throws Exception {
+
+        String input = "Neha Pintu Kharat";
+        KeyPair keyPair = Generate_RSA_KeyPair();
+
+        byte[] signature = Create_Digital_Signature(input.getBytes(), keyPair.getPrivate());
+
+        System.out.println("Signature Value:\n " + bytesToHex(signature));
+
+        System.out.println("Verification: " + Verify_Digital_Signature(input.getBytes(), signature, keyPair.getPublic()));
+    }
+}
+
+
+
+
+// ---------------------------------------------------------------------------
+// In the context of this Java code, DSS stands for Digital Signature System. It refers to a system or mechanism used to create and verify digital signatures, which ensure the authenticity and integrity of digital messages or documents.
+
+// A digital signature is a cryptographic value that is calculated from the data (like a message or document) and a private key. When a sender digitally signs a document, the signature can later be verified by others using the sender's public key, providing assurance that:
+
+// Authenticity: The document was indeed created by the sender.
+// Integrity: The document has not been altered since it was signed.
+// In this program, DSS is implemented using RSA encryption combined with the SHA-256 hashing algorithm.
+
+
+
+
+
+
+// You said:
+// then how above all things are achieved in the above cpde
+// ChatGPT said:
+// ChatGPT
+// The code achieves authenticity and integrity through the use of digital signatures, specifically by signing and verifying data with a pair of RSA keys (a private key and a public key). Here’s how each part of the code contributes to achieving these objectives:
+
+// 1. Key Generation
+// java
+// Copy code
+// KeyPair keyPair = Generate_RSA_KeyPair();
+// Explanation: The Generate_RSA_KeyPair() method creates a pair of RSA keys: a private key for signing and a public key for verification. The private key is kept secret by the sender, while the public key can be shared with anyone who needs to verify the signature.
+// Authenticity: By signing with the private key, only the person with access to this key (presumably the original sender) can create a valid signature.
+// Integrity: Because the digital signature uniquely depends on the original message data, any alteration of the data will result in a mismatch during verification.
+
+// 2. Creating the Digital Signature
+// java
+// Copy code
+// byte[] signature = Create_Digital_Signature(input.getBytes(), keyPair.getPrivate());
+// Explanation: The Create_Digital_Signature method generates a digital signature using:
+// Signature.getInstance(SIGNING_ALGORITHM): Specifies the algorithm (SHA-256 with RSA) for signing.
+// signature.initSign(Key): Initializes signing using the sender's private key.
+// signature.update(input): Hashes the input data (in this case, the string "Neha Pintu Kharat") using SHA-256 to create a unique, fixed-length digest of the data.
+// signature.sign(): Encrypts this hash with the private key to produce a digital signature.
+// Integrity: The signature is based on the hashed content of the original data. If even a single character in the message changes, the hash changes, causing the verification to fail.
+// 3. Verifying the Digital Signature
+// java
+// Copy code
+// boolean isVerified = Verify_Digital_Signature(input.getBytes(), signature, keyPair.getPublic());
+// Explanation: The Verify_Digital_Signature method checks if the provided signature matches the data, using:
+// signature.initVerify(key): Initializes verification with the sender's public key.
+// signature.update(input): Hashes the original data.
+// signature.verify(signatureToVerify): Compares the provided signature with a new one generated from the data and the public key.
+// Authenticity: If the public key can verify the signature, it confirms that the private key holder (the sender) signed the data.
+// Integrity: If the verification passes, it proves that the data has not been altered since it was signed. If any part of the data were changed, the hash values would differ, resulting in a failed verification.
+// 4. Printing the Signature and Verification Status
+// java
+// Copy code
+// System.out.println("Signature Value:\n " + bytesToHex(signature));
+// System.out.println("Verification: " + isVerified);
+// Explanation: This part converts the byte-array signature to a hexadecimal format for easier viewing, and displays whether the verification was successful (true if the signature matched, false otherwise).
+// Result: If isVerified is true, it confirms both authenticity and integrity of the data. The output signature can also be shared with anyone needing to verify the data.
