@@ -1,0 +1,99 @@
+#include <iostream>
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
+#include <bits/stdc++.h>
+using namespace std;
+
+// Function to compute (base^exponent) % mod using modular exponentiation
+long long power(long long base, long long exponent, long long mod)
+{
+    if (mod == 1)
+        return 0;
+    long long result = 1;
+    base = base % mod;
+    while (exponent > 0)
+    {
+        if (exponent & 1) // If exponent is odd
+            result = (result * base) % mod;
+        exponent = exponent >> 1; // exponent = exponent / 2
+        base = (base * base) % mod;
+    }
+    return result;
+}
+
+// Function to check if a number is prime
+bool isPrime(long long num)
+{
+    if (num < 2)
+        return false;
+    for (long long i = 2; i <= sqrt((double)num); ++i)
+    {
+        if (num % i == 0)
+            return false;
+    }
+    return true;
+}
+
+int main()
+{
+    srand(time(0)); // Seed for random number generation
+
+    cout << "=== Diffie-Hellman Key Exchange ===\n";
+
+    // Step 1: Choose public parameters p and g
+    long long p, g;
+
+    // For demonstration, we'll select a prime p and a generator g
+    // In practice, p should be a large prime and g a primitive root modulo p
+    // Here, we use small numbers for simplicity
+
+    // Choose a prime number p
+    do
+    {
+        p = rand() % 100 + 20; // p in [20, 119]
+    } while (!isPrime(p));
+
+    // Choose a generator g for p
+    // For simplicity, we'll choose g = 2 if it's a primitive root
+    // In practice, finding a generator requires more checks
+    g = 2;
+    // Note: For a complete implementation, verify that g is a primitive root modulo p
+
+    cout << "Public prime (p): " << p << "\n";
+    cout << "Public base (g): " << g << "\n\n";
+
+    // Step 2: Each party selects a private key
+    // Party A
+    long long a = rand() % (p - 2) + 1; // a in [1, p-2]
+    long long A = power(g, a, p);
+    cout << "Party A selects private key a: " << a << "\n";
+    cout << "Party A computes A = g^a mod p: " << A << "\n\n";
+
+    // Party B
+    long long b = rand() % (p - 2) + 1; // b in [1, p-2]
+    long long B = power(g, b, p);
+    cout << "Party B selects private key b: " << b << "\n";
+    cout << "Party B computes B = g^b mod p: " << B << "\n\n";
+
+    // Step 3: Exchange A and B, and compute the shared secret
+    // Party A computes S = B^a mod p
+    long long S_A = power(B, a, p);
+    cout << "Party A computes shared secret S = B^a mod p: " << S_A << "\n";
+
+    // Party B computes S = A^b mod p
+    long long S_B = power(A, b, p);
+    cout << "Party B computes shared secret S = A^b mod p: " << S_B << "\n\n";
+
+    // Verify that both secrets are equal
+    if (S_A == S_B)
+    {
+        cout << "Shared secret established successfully: " << S_A << "\n";
+    }
+    else
+    {
+        cout << "Error: Shared secrets do not match.\n";
+    }
+
+    return 0;
+}
