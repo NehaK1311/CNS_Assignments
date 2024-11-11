@@ -1,0 +1,37 @@
+from Crypto.Cipher import DES
+from Crypto.Util.Padding import pad, unpad
+from Crypto.Random import get_random_bytes
+
+def DES_encrypt(plain_text, key):
+    key = key.ljust(8)[:8]
+    
+    iv = get_random_bytes(DES.block_size)
+    cipher_encrypt = DES.new(key.encode(), DES.MODE_CBC, iv)
+
+    padded_text = pad(plain_text.encode(), DES.block_size)
+
+    encrypted_message = cipher_encrypt.encrypt(padded_text)
+
+    return iv + encrypted_message 
+
+def DES_decrypt(cipher_text, key):
+    key = key.ljust(8)[:8]
+
+    iv = cipher_text[:DES.block_size]
+    encrypted_message = cipher_text[DES.block_size:]
+
+    cipher_decrypt = DES.new(key.encode(), DES.MODE_CBC, iv)
+
+    decrypted_message = unpad(cipher_decrypt.decrypt(encrypted_message), DES.block_size)
+
+    return decrypted_message.decode()
+
+if __name__ == "__main__":
+    plain_text = input("Enter the message to encrypt: ")
+    key = input("Enter the key (8 characters or fewer): ")
+
+    encrypted_message = DES_encrypt(plain_text, key)
+    print(f"Encrypted Message (in hex): {encrypted_message.hex()}")
+
+    decrypted_message = DES_decrypt(encrypted_message, key)
+    print(f"Decrypted Message: {decrypted_message}")
