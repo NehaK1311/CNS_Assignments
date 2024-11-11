@@ -1,0 +1,124 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+string enc(string str, string key)
+{
+    bool flg = false;
+    int ind = 0;
+
+    // Find the maximum digit in the key
+    int mxnum = 0;
+    for (int i = 0; i < key.size(); i++)
+    {
+        mxnum = max(mxnum, key[i] - '0');
+    }
+    
+    // Calculate the number of rows required
+    int nrow = ceil((double)str.size() / mxnum);
+    
+    vector<vector<char>> vec(nrow, vector<char>(mxnum, '$')); // Fill with space instead of '0'
+
+    for (int i = 0; i < nrow; i++)
+    {
+        for (int j = 0; j < mxnum; j++)
+        {
+            if (ind >= str.size())
+            {
+                flg = true;
+                break;
+            }
+            vec[i][j] = str[ind++];
+        }
+        if (flg == true)
+            break;
+    }
+
+    cout << "Matrix : \n";
+
+    for (int i = 0; i < vec.size(); i++)
+    {
+        for (int j = 0; j < vec[i].size(); j++)
+        {
+            cout << vec[i][j] << " ";
+        }
+        cout << "\n";
+    }
+
+    string res;
+    for (int k = 0; k < key.size(); k++)
+    {
+        int col = key[k] - '1'; // Adjust for 0-based index
+        for (int row = 0; row < nrow; row++)
+        {
+            if(vec[row][col] != '$') // Avoid adding spaces from the matrix
+                res += vec[row][col];
+        }
+    }
+
+    return res;
+}
+
+string dec(string str, string key)
+{
+    bool flg = false;
+    int ind = 0;
+
+    // Find the maximum digit in the key
+    int mxnum = 0;
+    for (int i = 0; i < key.size(); i++)
+    {
+        mxnum = max(mxnum, key[i] - '0');
+    }
+    
+    // Calculate the number of rows required
+    int nrow = ceil((double)str.size() / mxnum);
+    
+    vector<vector<char>> vec(nrow, vector<char>(mxnum, '$')); // Fill with '$' instead of '0'
+
+    for(int i=0; i<key.size(); i++)
+    {
+        int col = key[i] - '1';
+        for(int row=0; row<nrow; row++)
+        {
+            if(ind >= str.size())
+            {
+                flg = true;
+                break;
+            }
+            vec[row][col] = str[ind++];
+        }
+        if(flg == true)
+          break;
+    }
+
+    string res;
+    for(int i=0; i<vec.size(); i++)
+    {
+        for(int j=0; j<vec[i].size(); j++)
+        {
+            if(vec[i][j] != '$')
+              res += vec[i][j];
+        }
+    }
+    return res;
+}
+
+
+int main()
+{
+    string s;
+    cout << "Input Text: " << endl;
+    getline(cin, s);
+
+    string key;
+    cout << "Input Key: " << endl;
+    cin >> key;
+
+    string ciphertext = enc(s, key);
+    cout << "Ciphertext: " << ciphertext << endl;
+
+    string decryptedtext = dec(ciphertext, key);
+    cout << "Decrypted text: " << decryptedtext << endl;
+
+    return 0;
+}
