@@ -1,0 +1,25 @@
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+
+def AES_encrypt_decrypt(message, key):
+    
+    key = key.ljust(16)[:16]  
+    
+    iv = get_random_bytes(AES.block_size)
+
+    cipher_encrypt = AES.new(key.encode(), AES.MODE_CFB, iv)
+    encrypted_message = cipher_encrypt.encrypt(message.encode())
+
+    print(f"Encrypted Message (in hex): {encrypted_message.hex()}")
+
+    cipher_decrypt = AES.new(key.encode(), AES.MODE_CFB, iv)
+    decrypted_message = cipher_decrypt.decrypt(encrypted_message).decode()
+
+    print(f"Decrypted Message: {decrypted_message}")
+
+if __name__ == "__main__":
+    message = input("Enter the message to encrypt: ")
+    key = input("Enter the key (16 characters or fewer): ")
+
+    AES_encrypt_decrypt(message, key)
+    
